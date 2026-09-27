@@ -49,14 +49,14 @@ class SpamButton(discord.ui.View):
 @app_commands.describe(message="The message you want to spam")
 async def spamraid(interaction: discord.Interaction, message: str):
     view = SpamButton(message)
-    await interaction.response.send_message(f"Make sure to join our server! https://discord.gg/xAFyjRAhRy", view=view, ephemeral=True)  
+    await interaction.response.send_message(f"Make sure to join our server! https://discord.gg/F8X9sJNC3a", view=view, ephemeral=True)  
 
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.allowed_installs(guilds=True, users=True)
 @bot.tree.command(name="say", description="Sends a single message")
 @app_commands.describe(message="The message you want the bot to say")
 async def say(interaction: discord.Interaction, message: str):
-    await interaction.response.send_message(f"Make sure to join our server! https://discord.gg/xAFyjRAhRy", ephemeral=True)
+    await interaction.response.send_message(f"Make sure to join our server! https://discord.gg/F8X9sJNC3a", ephemeral=True)
     await interaction.followup.send(message)
 
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -64,7 +64,7 @@ async def say(interaction: discord.Interaction, message: str):
 @bot.tree.command(name="ghostping", description="Send a ghost ping to a user")
 @app_commands.describe(user="The user you want to ghost ping")
 async def ghostping(interaction: discord.Interaction, user: discord.User):
-    await interaction.response.send_message(f"Make sure to join our server! https://discord.gg/xAFyjRAhRy", ephemeral=True)
+    await interaction.response.send_message(f"Make sure to join our server! https://discord.gg/F8X9sJNC3a", ephemeral=True)
     ping_msg = await interaction.followup.send(f"{user.mention}")
     await ping_msg.delete()
     
