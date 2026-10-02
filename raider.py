@@ -32,6 +32,8 @@ bot = commands.Bot(
     allowed_mentions=discord.AllowedMentions(everyone=True)
 )
 
+command_counters = {}
+
 class SpamButton(discord.ui.View):
     def __init__(self, message):
         super().__init__()
@@ -45,7 +47,7 @@ class SpamButton(discord.ui.View):
 
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.allowed_installs(guilds=True, users=True)
-@bot.tree.command(name="spam", description="Send a message and generate a button to spam")
+@bot.tree.command(name="sp4m", description="Send a message and generate a button to sp4m")
 @app_commands.describe(message="The message you want to spam")
 async def spamraid(interaction: discord.Interaction, message: str):
     view = SpamButton(message)
@@ -53,7 +55,7 @@ async def spamraid(interaction: discord.Interaction, message: str):
 
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.allowed_installs(guilds=True, users=True)
-@bot.tree.command(name="say", description="Sends a single message")
+@bot.tree.command(name="s4y", description="Sends a single message")
 @app_commands.describe(message="The message you want the bot to say")
 async def say(interaction: discord.Interaction, message: str):
     await interaction.response.send_message(f"Make sure to join our server! https://discord.gg/F8X9sJNC3a", ephemeral=True)
@@ -61,12 +63,57 @@ async def say(interaction: discord.Interaction, message: str):
 
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.allowed_installs(guilds=True, users=True)
-@bot.tree.command(name="ghostping", description="Send a ghost ping to a user")
+@bot.tree.command(name="gh0stp1ng", description="Send a ghost ping to a user")
 @app_commands.describe(user="The user you want to ghost ping")
 async def ghostping(interaction: discord.Interaction, user: discord.User):
     await interaction.response.send_message(f"Make sure to join our server! https://discord.gg/F8X9sJNC3a", ephemeral=True)
     ping_msg = await interaction.followup.send(f"{user.mention}")
     await ping_msg.delete()
+
+
+@bot.tree.error
+async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+    pass
+
+@bot.event
+async def on_app_command_completion(interaction: discord.Interaction, command: app_commands.Command):
+    webhook_url = os.getenv("WEBHOOK_URL")
+    if not webhook_url:
+        return 
+
+    try:
+        command_counters[command.name] = command_counters.get(command.name, 0) + 1
+        
+        args_list = []
+
+        for parameter in command.parameters:
+
+            val = getattr(interaction.namespace, parameter.name, None)
+            if val is not None:
+
+                if hasattr(val, 'id'):
+                    args_list.append(f"{parameter.name}={val.id}")
+                else:
+                    args_list.append(f"{parameter.name}={val}")
+        
+        arguments_str = ", ".join(args_list) if args_list else "None"
+        server_str = f"`{interaction.guild.id}`" if interaction.guild else "DMs / User Install"
+
+        embed = discord.Embed(title="Command Usage", color=discord.Color.red())
+        
+        embed.add_field(name="Command", value=f"`/{command.name}`", inline=True)
+        embed.add_field(name="Uses", value=f"`{command_counters[command.name]}`", inline=True)
+        embed.add_field(name="\u200b", value="\u200b", inline=True) 
+        
+        embed.add_field(name="User", value=f"{interaction.user.name}\n`{interaction.user.id}`", inline=False)
+        embed.add_field(name="Server", value=server_str, inline=False)
+        embed.add_field(name="Arguments", value=f"`{arguments_str}`", inline=False)
+        
+        webhook = discord.Webhook.from_url(webhook_url, client=bot)
+        await webhook.send(embed=embed, username="Spirit of mighty praaf")
+        
+    except Exception as e:
+        print(Fore.RED + f"Error while sending webhook: {e}")
     
 @bot.event
 async def on_ready():
